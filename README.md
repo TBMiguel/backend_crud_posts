@@ -16,4 +16,17 @@ Desenvolvimento:
 Criado CRUD de posts e comentários, onde um usuário autenticado pode fazer um post e esse post pode ter vários comentários.
 O vídeo de apresentação está no link abaixo:
 
-- [Link Apresentação do projeto]().
+- [Link Apresentação do projeto](https://youtu.be/89r7xtho8Wc).
+- [Link Documentação Postman API](https://documenter.getpostman.com/view/19712465/2sAXqs5guo).
+
+# Configuração projeto - local com docker
+
+- Buildar imagem docker: ```docker build -t crud-posts-image .```
+- Verificar imagem buildada: ```docker images```
+- Rodar Container: ```docker run --rm -u $(id -u) -it --name crud-posts-app --network=host -p 8000:8000  -v $(pwd):/usr/src/crud-posts  -w /usr/src/crud-posts crud-posts-image bash```
+
+
+# Configuração projeto - dentro do container docker
+- Rodar instalação de dependências ```composer install```
+- Instalação do Laravel Sanctum ```php artisan install:api```
+- Rodar as migrations ```php artisan migrate```

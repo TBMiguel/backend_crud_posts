@@ -1,4 +1,4 @@
-FROM php:8.3.6-alpine
+FROM php:8.3.11-alpine
 
 ENV TIMEZONE America/Sao_Paulo
 
