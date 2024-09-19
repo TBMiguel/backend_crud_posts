@@ -1,4 +1,4 @@
-## Trabalho disciplina back-end
+## Trabalho disciplina back-end PUCPR
 
 Autor: Miguel Junior
 
