@@ -18,7 +18,7 @@ class CommentsResource extends JsonResource
         return [
             'id'        => $this->id,
             'post'      => $this->post->id,
-            'usuario'   => Str::upper($this->user->name),
+            'usuario'   => Str::headline($this->user->name),
             'conteudo'  => $this->conteudo,
         ];
     }

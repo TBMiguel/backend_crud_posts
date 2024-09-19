@@ -6,13 +6,30 @@ use App\Http\Resources\CommentsResource;
 use App\Models\Comments;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
 class CommentsController extends Controller
 {
-    public function index(Post $post)
+    public function index($post)
     {
+        $this->validatePost($post);
+
+        $post   = Post::query()->find($post);
+
+        if (! $post) {
+            return response()->json([
+                'message' => 'Post não encontrado',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
         $comments = $post->comments()->paginate(5);
+
+        if ($comments->isEmpty()) {
+            return response()->json([
+                'message' => 'Nenhum comentário encontrado',
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         $comments->getCollection()->transform(function ($comment) {
             return CommentsResource::make($comment);
@@ -21,13 +38,17 @@ class CommentsController extends Controller
         return response()->json($comments);
     }
 
-    public function store(Request $request, Post $post)
+    public function store(Request $request, $post)
     {
         $request->validate([
             'conteudo' => 'required|max:500',
         ]);
 
-        if (! $post->exists()) {
+        $this->validatePost($post);
+
+        $post   = Post::query()->find($post);
+
+        if (! $post) {
             return response()->json([
                 'message' => 'Post não encontrado',
             ], Response::HTTP_NOT_FOUND);
@@ -44,11 +65,22 @@ class CommentsController extends Controller
         ]);
     }
 
-    public function show(Post $post, Comments $comment)
+    public function show($post, $comment)
     {
-        $comment = $post->comments()->find($comment->id);
+        $this->validatePost($post);
+        $this->validateComment($comment);
 
-        if (! $comment->exists()) {
+        $post   = Post::query()->find($post);
+
+        if (! $post) {
+            return response()->json([
+                'message' => 'Post não encontrado',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $comment       = $post->comments()->find($comment);
+
+        if (! $comment) {
             return response()->json([
                 'message' => 'Comentário foi apagado ou não existe',
             ], Response::HTTP_NOT_FOUND);
@@ -57,13 +89,25 @@ class CommentsController extends Controller
         return response()->json([
             'commentário' => CommentsResource::make($comment),
         ]);
+
     }
 
-    public function update(Request $request, Post $post, Comments $comment)
+    public function update(Request $request, $post, $comment)
     {
-        $comment = $post->comments()->find($comment->id);
+        $this->validatePost($post);
+        $this->validateComment($comment);
 
-        if (! $comment->exists()) {
+        $post   = Post::query()->find($post);
+
+        if (! $post) {
+            return response()->json([
+                'message' => 'Post não encontrado',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $comment    = $post->comments()->find($comment);
+
+        if (! $comment) {
             return response()->json([
                 'message' => 'Comentário foi apagado ou não existe',
             ], Response::HTTP_NOT_FOUND);
@@ -87,13 +131,24 @@ class CommentsController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, Post $post, Comments $comment)
+    public function destroy(Request $request, $post, $comment)
     {
-        $comment = $post->comments()->find($comment->id);
+        $this->validatePost($post);
+        $this->validateComment($comment);
 
-        if (! $comment->exists()) {
+        $post         = Post::query()->find($post);
+
+        if (! $post) {
             return response()->json([
-                'message' => 'Comentário já foi apagado ou não existe',
+                'message' => 'Post não encontrado',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $comment      = $post->comments()->find($comment);
+
+        if (! $comment) {
+            return response()->json([
+                'message' => 'Comentário foi apagado ou não existe',
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -108,5 +163,35 @@ class CommentsController extends Controller
         return response()->json([
             'message' => 'Comentário apagado com sucesso',
         ]);
+    }
+
+    public function validatePost($post)
+    {
+        $rules = [
+            'post' => 'required|int|exists:posts,id',
+        ];
+
+        if (Validator::make(['post' => $post], [$rules])->fails()) {
+            return response()->json([
+                'message' => 'Post não encontrado',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return true;
+    }
+
+    public function validateComment($comment)
+    {
+        $rules = [
+            'comment' => 'required|int|exists:comments,id',
+        ];
+
+        if (Validator::make(['comment' => $comment], [$rules])->fails()) {
+            return response()->json([
+                'message' => 'Comentário já foi apagado ou não existe',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return true;
     }
 }
