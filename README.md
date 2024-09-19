@@ -1,6 +1,6 @@
 ## Trabalho disciplina back-end PUCPR
 
-Autor: Miguel Junior
+Autor: Miguel Moacir Padilha Junior
 
 Critérios:
 
