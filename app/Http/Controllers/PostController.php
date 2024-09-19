@@ -16,31 +16,30 @@ class PostController extends Controller
 
     public function index(Request $request)
     {
+        $posts = Post::query();
+
+        if ($posts->get()->isEmpty()) {
+            return response()->json(['message' => 'Nenhum post encontrado'], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($request->has('sort_by')) {
+            $sortBy = $request->query('sort_by');
+            $posts = $posts->orderBy($sortBy);
+        }
+
         if (request()->has('data_inicio') && request()->has('data_fim')) {
             $dataInicio = $request->query('data_inicio');
             $dataFim    = $request->query('data_fim');
 
-            $posts = Post::query()->whereBetween('created_at', [$dataInicio, $dataFim])->paginate(5);
+            $posts = $posts->whereBetween('created_at', [$dataInicio, $dataFim]);
 
-            if ($posts->isEmpty()) {
+            if ($posts->get()->isEmpty()) {
                 return response()->json(['message' => 'Nenhum post encontrado'], Response::HTTP_NOT_FOUND);
             }
-
-            return response()->json([
-                'posts' => $posts->getCollection()->transform(function ($post) {
-                    return PostsResource::make($post);
-                }),
-            ]);
-        }
-
-        $posts = Post::paginate(5);
-
-        if ($posts->isEmpty()) {
-            return response()->json(['message' => 'Nenhum post encontrado'], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
-            'posts' => $posts->getCollection()->transform(function ($post) {
+            'posts' => $posts->paginate(5)->getCollection()->transform(function ($post) {
                 return PostsResource::make($post);
             }),
         ]);
