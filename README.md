@@ -24,10 +24,10 @@ O vídeo de apresentação está no link abaixo:
 - Buildar imagem docker: ```docker build -t crud-posts-image .```
 - Verificar imagem buildada: ```docker images```
 - Rodar Container: ```docker run --rm -u $(id -u) -it --name crud-posts-app --network=host -p 8000:8000  -v $(pwd):/usr/src/crud-posts  -w /usr/src/crud-posts crud-posts-image bash```
-- Copiar arquivo .env.example para .env
-- Rodar comando ```php artisan key:generate```
 
 # Configuração projeto - dentro do container docker
+- Copiar arquivo .env.example para .env
 - Rodar instalação de dependências ```composer install```
+- Rodar comando ```php artisan key:generate```
 - Instalação do Laravel Sanctum ```php artisan install:api```
 - Rodar as migrations ```php artisan migrate```
